@@ -1,6 +1,7 @@
 package com.onebox.cart.service;
 
 import com.onebox.cart.model.Cart;
+import com.onebox.cart.repository.CartRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -8,8 +9,15 @@ import java.util.UUID;
 @Service
 public class CartServiceImpl implements CartService {
 
+    private final CartRepository cartRepository;
+
+    public CartServiceImpl(CartRepository cartRepository) {
+        this.cartRepository = cartRepository;
+    }
+
     @Override
     public Cart createCart() {
-        return new Cart(UUID.randomUUID().toString());
+        Cart cart = new Cart(UUID.randomUUID().toString());
+        return cartRepository.save(cart);
     }
 }
