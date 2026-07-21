@@ -27,3 +27,83 @@ To implement and solve the challenge you only have one requirement... use Java!
 Good luck!
 
 #challengeaccepted
+
+## Solución
+
+Backend en **Java 17** con **Spring Boot 4.1** (Maven) que expone una API REST para gestionar carritos de un e-commerce, cumpliendo los requisitos del enunciado:
+
+- Los carritos y sus productos se guardan **en memoria** (no hay base de datos), a través de un repositorio con una interfaz propia (`CartRepository`) para no acoplar el resto de la aplicación a esa decisión.
+- El **id del carrito lo genera la aplicación** (`UUID`), no el cliente.
+- Un **scheduler** (`@Scheduled`) revisa periódicamente los carritos y borra automáticamente aquellos con más de **10 minutos de inactividad** (se considera actividad tanto crear/modificar el carrito como consultarlo).
+- Arquitectura en capas clásica: `controller` → `service` → `repository`, más un `scheduler` para la expiración automática (que no depende de ninguna petición HTTP).
+
+El desarrollo se hizo de forma incremental, flujo a flujo (crear carrito, obtener por id, añadir productos, eliminar, expiración), implementando primero el punto de entrada (controller o scheduler) con una respuesta simple, extrayendo después la lógica a un servicio, y por último conectando el servicio al repositorio. El detalle completo de cada paso y su razonamiento está en [`HISTORIAL.md`](HISTORIAL.md).
+
+## Estructura del proyecto
+
+```
+src/main/java/com/onebox/cart/
+├── CartServiceApplication.java   # Punto de entrada Spring Boot (@EnableScheduling)
+├── controller/                   # Endpoints REST (CartController)
+├── service/                      # Lógica de negocio (CartService / CartServiceImpl)
+├── repository/                   # Persistencia en memoria (CartRepository / InMemoryCartRepository)
+├── scheduler/                    # Tarea programada de expiración de carritos
+└── model/                        # Entidades de dominio (Cart, Product)
+```
+
+Cada capa tiene su propio test (`src/test/java/...`), usando `@WebMvcTest` + `MockMvc` para el controller y JUnit 5 + Mockito para servicio, repositorio y scheduler.
+
+## Cómo levantar el proyecto
+
+El proyecto incluye el wrapper de Maven, así que no hace falta tener Maven instalado (sí un JDK 17+).
+
+```bash
+# Arrancar la aplicación (puerto 8080 por defecto)
+./mvnw spring-boot:run
+
+# Compilar
+./mvnw compile
+
+# Generar el jar ejecutable
+./mvnw package
+java -jar target/cart-service-0.0.1-SNAPSHOT.jar
+```
+
+## Tests
+
+```bash
+# Suite completa
+./mvnw test
+
+# Una clase de test concreta
+./mvnw test -Dtest=CartControllerTest
+```
+
+## API
+
+Todos los endpoints cuelgan de `/carts`.
+
+| Método | Ruta | Descripción | Cuerpo de la petición | Respuesta |
+|---|---|---|---|---|
+| `POST` | `/carts` | Crea un carrito vacío (id generado por la app) | — | `201 Created` + `Location` + `Cart` |
+| `GET` | `/carts/{cartId}` | Obtiene un carrito por id | — | `200 OK` + `Cart` |
+| `POST` | `/carts/{cartId}/products` | Añade uno o más productos al carrito | `[{ "id": 1, "description": "Laptop", "amount": 999.99 }]` | `200 OK` + `Cart` actualizado |
+| `DELETE` | `/carts/{cartId}` | Elimina un carrito | — | `204 No Content` |
+
+Ejemplo de `Cart` devuelto:
+
+```json
+{
+  "id": "3f1c9e2a-...-b6d4",
+  "products": [
+    { "id": 1, "description": "Laptop", "amount": 999.99 }
+  ]
+}
+```
+
+## Decisiones y limitaciones conocidas
+
+- **Sin base de datos**: se usa un `ConcurrentHashMap` en memoria; los datos se pierden al reiniciar la aplicación. Es intencionado: el enunciado no pide persistencia y el criterio de evaluación prioriza que sea "fácil de testear, revisar y desplegar".
+- **Sin manejo explícito de "carrito no encontrado"**: consultar, añadir productos a, o borrar un carrito inexistente no devuelve todavía un `404` controlado (puede propagar un error interno). Es una limitación conocida, no abordada aún porque no se ha pedido explícitamente durante el desarrollo incremental.
+- **Sin validación de campos** (más allá del tipado JSON): el enunciado pide que `id` y `amount` sean numéricos y `description` alfanumérico; eso se cumple por el propio tipado de `Product` (`Long`, `BigDecimal`, `String`) y el binding de Jackson, sin añadir una dependencia de validación adicional.
+- **Dependencias mínimas**: solo `spring-boot-starter-webmvc` (producción) y `spring-boot-starter-webmvc-test` (test), sin base de datos, Lombok, ni librerías de validación.
