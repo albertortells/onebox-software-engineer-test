@@ -36,6 +36,8 @@ class CartControllerTest {
 
     @Test
     void getsCartById() throws Exception {
+        when(cartService.getCart("cart-1")).thenReturn(new Cart("cart-1"));
+
         mockMvc.perform(get("/carts/cart-1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("cart-1"));

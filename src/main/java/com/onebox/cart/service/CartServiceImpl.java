@@ -20,4 +20,9 @@ public class CartServiceImpl implements CartService {
         Cart cart = new Cart(UUID.randomUUID().toString());
         return cartRepository.save(cart);
     }
+
+    @Override
+    public Cart getCart(String cartId) {
+        return new Cart(cartId);
+    }
 }

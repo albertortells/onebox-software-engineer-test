@@ -29,6 +29,6 @@ public class CartController {
 
     @GetMapping("/{cartId}")
     public Cart getCart(@PathVariable String cartId) {
-        return new Cart(cartId);
+        return cartService.getCart(cartId);
     }
 }
