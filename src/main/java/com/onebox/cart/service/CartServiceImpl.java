@@ -42,4 +42,8 @@ public class CartServiceImpl implements CartService {
     public void deleteCart(String cartId) {
         cartRepository.deleteById(cartId);
     }
+
+    @Override
+    public void expireInactiveCarts() {
+    }
 }

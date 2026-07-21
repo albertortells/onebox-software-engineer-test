@@ -14,4 +14,6 @@ public interface CartService {
     Cart addProducts(String cartId, List<Product> products);
 
     void deleteCart(String cartId);
+
+    void expireInactiveCarts();
 }
