@@ -1,6 +1,7 @@
 package com.onebox.cart.controller;
 
 import com.onebox.cart.model.Cart;
+import com.onebox.cart.model.Product;
 import com.onebox.cart.service.CartService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,8 +10,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.math.BigDecimal;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -48,6 +51,10 @@ class CartControllerTest {
 
     @Test
     void addsProductsToCart() throws Exception {
+        Product product = new Product(1L, "Laptop", new BigDecimal("999.99"));
+        when(cartService.addProducts(eq("cart-1"), eq(List.of(product))))
+                .thenReturn(new Cart("cart-1", List.of(product)));
+
         String requestBody = """
                 [
                   {"id": 1, "description": "Laptop", "amount": 999.99}

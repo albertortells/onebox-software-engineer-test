@@ -37,6 +37,6 @@ public class CartController {
 
     @PostMapping("/{cartId}/products")
     public Cart addProducts(@PathVariable String cartId, @RequestBody List<Product> products) {
-        return new Cart(cartId, products);
+        return cartService.addProducts(cartId, products);
     }
 }

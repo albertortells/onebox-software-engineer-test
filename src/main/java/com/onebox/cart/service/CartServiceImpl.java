@@ -1,6 +1,7 @@
 package com.onebox.cart.service;
 
 import com.onebox.cart.model.Cart;
+import com.onebox.cart.model.Product;
 import com.onebox.cart.repository.CartRepository;
 import org.springframework.stereotype.Service;
 
@@ -25,5 +26,10 @@ public class CartServiceImpl implements CartService {
     @Override
     public Cart getCart(String cartId) {
         return cartRepository.findById(cartId).orElse(null);
+    }
+
+    @Override
+    public Cart addProducts(String cartId, List<Product> products) {
+        return new Cart(cartId, products);
     }
 }
