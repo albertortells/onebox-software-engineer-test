@@ -4,6 +4,7 @@ import com.onebox.cart.model.Cart;
 import com.onebox.cart.repository.CartRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -17,7 +18,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Cart createCart() {
-        Cart cart = new Cart(UUID.randomUUID().toString());
+        Cart cart = new Cart(UUID.randomUUID().toString(), List.of());
         return cartRepository.save(cart);
     }
 

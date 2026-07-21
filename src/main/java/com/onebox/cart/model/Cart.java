@@ -1,4 +1,6 @@
 package com.onebox.cart.model;
 
-public record Cart(String id) {
+import java.util.List;
+
+public record Cart(String id, List<Product> products) {
 }
