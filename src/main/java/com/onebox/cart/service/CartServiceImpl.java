@@ -5,6 +5,7 @@ import com.onebox.cart.model.Product;
 import com.onebox.cart.repository.CartRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -45,5 +46,6 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public void expireInactiveCarts() {
+        cartRepository.deleteInactiveCartsOlderThan(Duration.ofMinutes(10));
     }
 }
