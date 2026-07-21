@@ -1,5 +1,6 @@
 package com.onebox.cart.service;
 
+import com.onebox.cart.exception.CartNotFoundException;
 import com.onebox.cart.model.Cart;
 import com.onebox.cart.model.Product;
 import com.onebox.cart.repository.CartRepository;
@@ -27,12 +28,12 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Cart getCart(String cartId) {
-        return cartRepository.findById(cartId).orElse(null);
+        return cartRepository.findById(cartId).orElseThrow(() -> new CartNotFoundException(cartId));
     }
 
     @Override
     public Cart addProducts(String cartId, List<Product> products) {
-        Cart existingCart = cartRepository.findById(cartId).orElse(null);
+        Cart existingCart = cartRepository.findById(cartId).orElseThrow(() -> new CartNotFoundException(cartId));
         List<Product> updatedProducts = new ArrayList<>(existingCart.products());
         updatedProducts.addAll(products);
         Cart updatedCart = new Cart(cartId, updatedProducts);
@@ -41,6 +42,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public void deleteCart(String cartId) {
+        cartRepository.findById(cartId).orElseThrow(() -> new CartNotFoundException(cartId));
         cartRepository.deleteById(cartId);
     }
 

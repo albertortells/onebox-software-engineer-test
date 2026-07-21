@@ -1,5 +1,6 @@
 package com.onebox.cart.controller;
 
+import com.onebox.cart.exception.CartNotFoundException;
 import com.onebox.cart.model.Cart;
 import com.onebox.cart.model.Product;
 import com.onebox.cart.service.CartService;
@@ -13,7 +14,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.math.BigDecimal;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -52,6 +55,15 @@ class CartControllerTest {
     }
 
     @Test
+    void returnsNotFoundWhenGettingAMissingCart() throws Exception {
+        when(cartService.getCart("missing")).thenThrow(new CartNotFoundException("missing"));
+
+        mockMvc.perform(get("/carts/missing"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.detail").value("Cart not found: missing"));
+    }
+
+    @Test
     void addsProductsToCart() throws Exception {
         Product product = new Product(1L, "Laptop", new BigDecimal("999.99"));
         when(cartService.addProducts(eq("cart-1"), eq(List.of(product))))
@@ -74,10 +86,30 @@ class CartControllerTest {
     }
 
     @Test
+    void returnsNotFoundWhenAddingProductsToAMissingCart() throws Exception {
+        when(cartService.addProducts(eq("missing"), any())).thenThrow(new CartNotFoundException("missing"));
+
+        mockMvc.perform(post("/carts/missing/products")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("[]"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.detail").value("Cart not found: missing"));
+    }
+
+    @Test
     void deletesCart() throws Exception {
         mockMvc.perform(delete("/carts/cart-1"))
                 .andExpect(status().isNoContent());
 
         verify(cartService).deleteCart("cart-1");
+    }
+
+    @Test
+    void returnsNotFoundWhenDeletingAMissingCart() throws Exception {
+        doThrow(new CartNotFoundException("missing")).when(cartService).deleteCart("missing");
+
+        mockMvc.perform(delete("/carts/missing"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.detail").value("Cart not found: missing"));
     }
 }

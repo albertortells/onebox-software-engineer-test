@@ -101,9 +101,22 @@ Ejemplo de `Cart` devuelto:
 }
 ```
 
+## Manejo de errores
+
+Cuando se consulta, se añaden productos a, o se elimina un carrito que no existe, el servicio lanza `CartNotFoundException` (`exception/CartNotFoundException.java`), que un `@RestControllerAdvice` (`exception/ApiExceptionHandler.java`) traduce a una respuesta `404 Not Found`. El cuerpo del error usa `ProblemDetail` (RFC 7807), un tipo ya incluido en Spring Web, en vez de un DTO de error propio:
+
+```json
+{
+  "type": "about:blank",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "Cart not found: <id>"
+}
+```
+
 ## Decisiones y limitaciones conocidas
 
 - **Sin base de datos**: se usa un `ConcurrentHashMap` en memoria; los datos se pierden al reiniciar la aplicación. Es intencionado: el enunciado no pide persistencia y el criterio de evaluación prioriza que sea "fácil de testear, revisar y desplegar".
-- **Sin manejo explícito de "carrito no encontrado"**: consultar, añadir productos a, o borrar un carrito inexistente no devuelve todavía un `404` controlado (puede propagar un error interno). Es una limitación conocida, no abordada aún porque no se ha pedido explícitamente durante el desarrollo incremental.
-- **Sin validación de campos** (más allá del tipado JSON): el enunciado pide que `id` y `amount` sean numéricos y `description` alfanumérico; eso se cumple por el propio tipado de `Product` (`Long`, `BigDecimal`, `String`) y el binding de Jackson, sin añadir una dependencia de validación adicional.
+- **Sin DTOs propios**: los endpoints devuelven/reciben directamente los records de dominio (`Cart`, `Product`), y los errores usan el `ProblemDetail` de Spring en vez de un DTO de error a medida. Para el alcance de esta prueba evita mapeos redundantes sin perder una respuesta de error estructurada.
+- **Sin validación de campos** (más allá del tipado JSON): el enunciado pide que `id` y `amount` sean numéricos y `description` alfanumérico; eso se cumple por el propio tipado de `Product` (`Long`, `BigDecimal`, `String`) y el binding de Jackson, sin añadir una dependencia de validación adicional. Un campo ausente en el JSON (p. ej. `amount`) no se rechaza con un `400` explícito.
 - **Dependencias mínimas**: solo `spring-boot-starter-webmvc` (producción) y `spring-boot-starter-webmvc-test` (test), sin base de datos, Lombok, ni librerías de validación.
