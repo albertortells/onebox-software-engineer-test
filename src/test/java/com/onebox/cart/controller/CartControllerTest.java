@@ -15,6 +15,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -69,5 +70,11 @@ class CartControllerTest {
                 .andExpect(jsonPath("$.products[0].id").value(1))
                 .andExpect(jsonPath("$.products[0].description").value("Laptop"))
                 .andExpect(jsonPath("$.products[0].amount").value(999.99));
+    }
+
+    @Test
+    void deletesCart() throws Exception {
+        mockMvc.perform(delete("/carts/cart-1"))
+                .andExpect(status().isNoContent());
     }
 }

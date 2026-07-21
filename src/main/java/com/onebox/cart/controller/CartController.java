@@ -4,6 +4,7 @@ import com.onebox.cart.model.Cart;
 import com.onebox.cart.model.Product;
 import com.onebox.cart.service.CartService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,5 +39,10 @@ public class CartController {
     @PostMapping("/{cartId}/products")
     public Cart addProducts(@PathVariable String cartId, @RequestBody List<Product> products) {
         return cartService.addProducts(cartId, products);
+    }
+
+    @DeleteMapping("/{cartId}")
+    public ResponseEntity<Void> deleteCart(@PathVariable String cartId) {
+        return ResponseEntity.noContent().build();
     }
 }
