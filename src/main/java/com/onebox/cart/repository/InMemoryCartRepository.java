@@ -22,4 +22,9 @@ public class InMemoryCartRepository implements CartRepository {
     public Optional<Cart> findById(String id) {
         return Optional.ofNullable(carts.get(id));
     }
+
+    @Override
+    public void deleteById(String id) {
+        carts.remove(id);
+    }
 }
