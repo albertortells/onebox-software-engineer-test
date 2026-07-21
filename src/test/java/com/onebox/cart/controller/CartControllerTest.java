@@ -9,6 +9,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -30,6 +31,13 @@ class CartControllerTest {
         mockMvc.perform(post("/carts"))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", "/carts/cart-1"))
+                .andExpect(jsonPath("$.id").value("cart-1"));
+    }
+
+    @Test
+    void getsCartById() throws Exception {
+        mockMvc.perform(get("/carts/cart-1"))
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("cart-1"));
     }
 }
