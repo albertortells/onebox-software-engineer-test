@@ -37,4 +37,8 @@ public class CartServiceImpl implements CartService {
         Cart updatedCart = new Cart(cartId, updatedProducts);
         return cartRepository.save(updatedCart);
     }
+
+    @Override
+    public void deleteCart(String cartId) {
+    }
 }

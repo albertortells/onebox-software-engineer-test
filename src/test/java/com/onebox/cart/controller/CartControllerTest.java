@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -76,5 +77,7 @@ class CartControllerTest {
     void deletesCart() throws Exception {
         mockMvc.perform(delete("/carts/cart-1"))
                 .andExpect(status().isNoContent());
+
+        verify(cartService).deleteCart("cart-1");
     }
 }
