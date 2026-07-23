@@ -37,7 +37,7 @@ Backend en **Java 17** con **Spring Boot 4.1** (Maven) que expone una API REST p
 - Un **scheduler** (`@Scheduled`) revisa periódicamente los carritos y borra automáticamente aquellos con más de **10 minutos de inactividad** (se considera actividad tanto crear/modificar el carrito como consultarlo).
 - Arquitectura en capas clásica: `controller` → `service` → `repository`, más un `scheduler` para la expiración automática (que no depende de ninguna petición HTTP).
 
-El desarrollo se hizo de forma incremental, flujo a flujo (crear carrito, obtener por id, añadir productos, eliminar, expiración), implementando primero el punto de entrada (controller o scheduler) con una respuesta simple, extrayendo después la lógica a un servicio, y por último conectando el servicio al repositorio. El detalle completo de cada paso y su razonamiento está en [`HISTORIAL.md`](HISTORIAL.md).
+El desarrollo se hizo de forma incremental, flujo a flujo (crear carrito, obtener por id, añadir productos, eliminar, expiración), implementando primero el punto de entrada (controller o scheduler) con una respuesta simple, extrayendo después la lógica a un servicio, y por último conectando el servicio al repositorio.
 
 ## Estructura del proyecto
 
